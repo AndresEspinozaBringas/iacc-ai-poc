@@ -1,0 +1,20 @@
+{
+  "name": "iacc-rag",
+  "version": "1.0.0",
+  "description": "RAG sobre catálogo de APIs IACC — POC 3",
+  "type": "module",
+  "scripts": {
+    "ingest:excel": "node --env-file=../.env ingest/excel.js",
+    "ingest:jira": "node --env-file=../.env ingest/jira.js",
+    "ingest:wiki": "node --env-file=../.env ingest/wiki.js",
+    "ingest": "npm run ingest:excel && npm run ingest:jira && npm run ingest:wiki",
+    "query": "node --env-file=../.env query.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.32.0",
+    "chromadb": "^2.0.0",
+    "chromadb-default-embed": "^2.13.2",
+    "langfuse": "^3.31.0",
+    "xlsx": "^0.18.5"
+  }
+}

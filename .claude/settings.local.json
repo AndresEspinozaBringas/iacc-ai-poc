@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__iacc-server__calculate_final_grade",
+      "Bash(cd:*)",
+      "Bash(printf:*)",
+      "Bash(node:*)"
+    ]
+  }
+}

@@ -1,0 +1,58 @@
+[
+  {
+    "id": "q01",
+    "pregunta": "¿Cómo se autentica un usuario en la API de matrícula?",
+    "herramientas_esperadas": ["search_knowledge_base"],
+    "tipo": "semantica",
+    "tema": "APIs"
+  },
+  {
+    "id": "q02",
+    "pregunta": "¿Cuál es la arquitectura del Portal de Pagos?",
+    "herramientas_esperadas": ["search_wiki"],
+    "tipo": "semantica",
+    "tema": "arquitectura"
+  },
+  {
+    "id": "q03",
+    "pregunta": "¿Qué issues están en progreso en el proyecto CA?",
+    "herramientas_esperadas": ["query_jira"],
+    "tipo": "filtro",
+    "tema": "jira"
+  },
+  {
+    "id": "q04",
+    "pregunta": "¿Qué dice la wiki sobre el SGD y qué issues están abiertos en ese sistema?",
+    "herramientas_esperadas": ["search_wiki", "query_jira"],
+    "tipo": "cruzada",
+    "tema": "sgd"
+  },
+  {
+    "id": "q05",
+    "pregunta": "¿Qué endpoints existen para gestionar contratos en la API de matrícula?",
+    "herramientas_esperadas": ["search_knowledge_base"],
+    "tipo": "semantica",
+    "tema": "APIs"
+  },
+  {
+    "id": "q06",
+    "pregunta": "¿Cuáles son las reglas de negocio del Planificador de Cursos?",
+    "herramientas_esperadas": ["search_wiki"],
+    "tipo": "semantica",
+    "tema": "reglas"
+  },
+  {
+    "id": "q07",
+    "pregunta": "¿Qué HDU finalizaron esta semana en el proyecto EV?",
+    "herramientas_esperadas": ["query_jira"],
+    "tipo": "filtro",
+    "tema": "jira"
+  },
+  {
+    "id": "q08",
+    "pregunta": "¿Qué hay relacionado con autenticación SSO en las APIs?",
+    "herramientas_esperadas": ["search_knowledge_base"],
+    "tipo": "semantica",
+    "tema": "APIs"
+  }
+]

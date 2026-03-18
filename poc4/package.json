@@ -1,0 +1,15 @@
+{
+  "name": "iacc-agent",
+  "version": "1.0.0",
+  "description": "POC 4 — Agente Multi-herramienta con Claude Opus 4.6",
+  "type": "module",
+  "scripts": {
+    "agent": "node --env-file=../.env agent.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.32.0",
+    "chromadb": "^2.0.0",
+    "chromadb-default-embed": "^2.13.2",
+    "langfuse": "^3.31.0"
+  }
+}

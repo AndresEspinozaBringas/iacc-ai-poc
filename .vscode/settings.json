@@ -34,5 +34,6 @@
     { "pattern": "./packages/shared" },
     { "pattern": "./ee" }
   ],
-  "eslint.useFlatConfig": true
+  "eslint.useFlatConfig": true,
+  "kiroAgent.configureMCP": "Enabled"
 }

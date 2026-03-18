@@ -98,7 +98,7 @@ services:
       - langfuse_clickhouse_logs:/var/log/clickhouse-server
     ports:
       - 127.0.0.1:8123:8123
-      - 127.0.0.1:9000:9000
+      - 127.0.0.1:9010:9000
     healthcheck:
       test: wget --no-verbose --tries=1 --spider http://localhost:8123/ping || exit 1
       interval: 5s
@@ -159,9 +159,20 @@ services:
       TZ: UTC
       PGTZ: UTC
     ports:
-      - 127.0.0.1:5432:5432
+      - 127.0.0.1:5433:5432
     volumes:
       - langfuse_postgres_data:/var/lib/postgresql/data
+
+  chromadb:
+    image: chromadb/chroma:latest
+    restart: always
+    ports:
+      - 127.0.0.1:8000:8000
+    volumes:
+      - langfuse_chroma_data:/chroma/chroma
+    environment:
+      IS_PERSISTENT: "TRUE"
+      ANONYMIZED_TELEMETRY: "FALSE"
 
 volumes:
   langfuse_postgres_data:
@@ -173,4 +184,6 @@ volumes:
   langfuse_minio_data:
     driver: local
   langfuse_redis_data:
+    driver: local
+  langfuse_chroma_data:
     driver: local

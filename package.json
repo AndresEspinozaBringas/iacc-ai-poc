@@ -103,5 +103,12 @@
     "patchedDependencies": {
       "next-auth@4.24.13": "patches/next-auth@4.24.13.patch"
     }
+  },
+  "description": "<img width=\"4856\" height=\"1000\" alt=\"github-banner\" src=\"https://github.com/user-attachments/assets/6f435ef3-1194-4e26-87af-aa13826bbb5f\" />",
+  "main": "index.js",
+  "keywords": [],
+  "type": "module",
+  "dependencies": {
+    "xlsx": "^0.18.5"
   }
 }
