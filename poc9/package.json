@@ -1,0 +1,11 @@
+{
+  "name": "iacc-ai-gateway",
+  "version": "1.0.0",
+  "description": "POC 9 — AI Gateway con LiteLLM: virtual keys, límites de gasto y alias de modelos",
+  "type": "module",
+  "scripts": {
+    "setup-keys": "node --env-file=../.env setup-keys.js",
+    "test":       "node --env-file=../.env test-gateway.js"
+  },
+  "dependencies": {}
+}

@@ -1,10 +1,11 @@
 #!/bin/bash
 # ═══════════════════════════════════════════════════════════════
-# PASO 1 — Subir código a GitHub (ejecutar en MacBook M1)
+# PASO 1 — Subir código a GitHub (ejecutar en el equipo origen)
 # ═══════════════════════════════════════════════════════════════
 
 set -e
-cd ~/langfuse-poc
+PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$PROJECT_DIR"
 
 echo "📁 Creando .gitignore..."
 cat > .gitignore << 'EOF'
@@ -41,4 +42,4 @@ echo "   3. NO inicialices con README ni .gitignore"
 echo "   4. Copia la URL del repositorio (ej: https://github.com/TU_USUARIO/iacc-ai-poc.git)"
 echo ""
 echo "📋 Luego ejecuta PASO 1b con tu URL de GitHub:"
-echo "   bash ~/langfuse-poc/scripts/paso1b-push-github.sh https://github.com/TU_USUARIO/iacc-ai-poc.git"
+echo "   bash $PROJECT_DIR/scripts/paso1b-push-github.sh https://github.com/TU_USUARIO/iacc-ai-poc.git"

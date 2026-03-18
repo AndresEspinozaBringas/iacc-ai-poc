@@ -1,27 +1,29 @@
 #!/bin/bash
 # ═══════════════════════════════════════════════════════════════
-# PASO 3 — Transferir por red local (ejecutar en MacBook M5)
+# PASO 3 — Transferir backups por red local (ejecutar en destino)
 # Solo si NO usas AirDrop ni USB
-# Uso: bash paso3-transferir-red.sh IP_DEL_M1 USUARIO_DEL_M1
+# Uso: bash paso3-transferir-red.sh IP_ORIGEN USUARIO_ORIGEN [RUTA_PROYECTO_ORIGEN]
 # Ejemplo: bash paso3-transferir-red.sh 192.168.1.100 andres
 # ═══════════════════════════════════════════════════════════════
 
-IP_M1=$1
-USUARIO_M1=$2
+IP_ORIGEN=$1
+USUARIO_ORIGEN=$2
+RUTA_ORIGEN="${3:-iacc-ai-poc}"   # ruta relativa al home del equipo origen
 
-if [ -z "$IP_M1" ] || [ -z "$USUARIO_M1" ]; then
-  echo "❌ Uso: bash paso3-transferir-red.sh IP_DEL_M1 USUARIO_DEL_M1"
+if [ -z "$IP_ORIGEN" ] || [ -z "$USUARIO_ORIGEN" ]; then
+  echo "❌ Uso: bash paso3-transferir-red.sh IP_ORIGEN USUARIO_ORIGEN [RUTA_PROYECTO]"
   echo ""
-  echo "💡 Para saber la IP del M1:"
-  echo "   En el M1 → Ajustes del Sistema → Wi-Fi → Detalles → Dirección IP"
+  echo "💡 Para saber la IP del equipo origen:"
+  echo "   Ajustes del Sistema → Wi-Fi → Detalles → Dirección IP"
   exit 1
 fi
 
-mkdir -p ~/langfuse-poc/backups
+PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+mkdir -p "$PROJECT_DIR/backups"
 
-echo "📡 Copiando backups desde M1 ($USUARIO_M1@$IP_M1)..."
-scp -r "$USUARIO_M1@$IP_M1:~/langfuse-poc/backups/" ~/langfuse-poc/
+echo "📡 Copiando backups desde $USUARIO_ORIGEN@$IP_ORIGEN (~/$RUTA_ORIGEN/backups/)..."
+scp -r "$USUARIO_ORIGEN@$IP_ORIGEN:~/$RUTA_ORIGEN/backups/" "$PROJECT_DIR/"
 
 echo ""
-echo "✅ Archivos recibidos:"
-ls -lh ~/langfuse-poc/backups/
+echo "✅ Archivos recibidos en $PROJECT_DIR/backups/:"
+ls -lh "$PROJECT_DIR/backups/"

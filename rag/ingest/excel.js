@@ -14,20 +14,21 @@ import { Langfuse } from 'langfuse';
 
 const COLLECTION_NAME = 'iacc-apis';
 
-// Los tres catálogos de API — rutas absolutas para no depender del cwd
+// Los tres catálogos de API — usan HOME para no depender del usuario
+const DOWNLOADS = `${process.env.HOME}/Downloads`;
 const CATALOGS = [
   {
-    path: '/Users/andresespinozabringas/Downloads/api-catalog-Matricula-Contrato.xlsx',
+    path: `${DOWNLOADS}/api-catalog-Matricula-Contrato.xlsx`,
     source: 'Matricula-Contrato',
     sheet: 'APIs Catalog',
   },
   {
-    path: '/Users/andresespinozabringas/Downloads/api-catalog-PlanifCurso.xlsx',
+    path: `${DOWNLOADS}/api-catalog-PlanifCurso.xlsx`,
     source: 'PlanifCurso',
     sheet: 'APIs Catalog',
   },
   {
-    path: '/Users/andresespinozabringas/Downloads/docente-api-catalog.xlsx',
+    path: `${DOWNLOADS}/docente-api-catalog.xlsx`,
     source: 'Docente',
     sheet: 'APIs Catalog',
   },

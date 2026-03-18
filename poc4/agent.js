@@ -233,21 +233,38 @@ async function executeTool(name, input, traceSpan) {
   return result;
 }
 
-// ── System prompt del agente ──────────────────────────────────────────────────
-const SYSTEM_PROMPT = `Eres un asistente técnico de IACC con acceso a dos fuentes de información:
+// ── System prompt — leído desde Langfuse Prompt Management (POC 6b) ──────────
+// Fallback hardcodeado por si Langfuse no está disponible al arrancar
+const FALLBACK_PROMPT = `Eres un asistente técnico de IACC. Estructura SIEMPRE tu respuesta con este formato:
 
-1. Base de conocimiento (search_knowledge_base): catálogo de APIs y descripción de issues Jira.
-   Úsala para preguntas conceptuales o de contenido.
+**Respuesta:**
+[Información directa en 2-4 oraciones concisas]
 
-2. Jira Cloud (query_jira, get_jira_issue): acceso directo a issues en tiempo real.
-   Úsala para filtros exactos por fecha, estado, asignado, etc.
+**Fuentes consultadas:**
+[Lista las herramientas que usaste y qué aportó cada una]
 
-Razona sobre qué herramienta es más apropiada antes de llamarla.
-Puedes llamar múltiples herramientas si la pregunta lo requiere.
-Responde en español, de forma concisa y útil.`;
+Herramientas disponibles:
+- search_knowledge_base → APIs y endpoints (búsqueda semántica)
+- search_wiki → arquitectura, flujos, reglas de negocio, documentación técnica
+- query_jira → filtros JQL exactos: fechas, estados, proyectos, asignados
+- get_jira_issue → detalle completo de un issue específico (ej: EV-1316)
+
+Usa herramientas antes de responder. Si necesitas múltiples fuentes, combínalas.
+Responde en español con precisión técnica.`;
+
+async function getSystemPrompt() {
+  try {
+    const promptObj = await langfuse.getPrompt('agent-system', undefined, { label: 'production' });
+    console.log(`📋 Prompt cargado desde Langfuse (v${promptObj.version})`);
+    return promptObj.prompt;
+  } catch {
+    console.log('⚠️  Usando prompt local (fallback)');
+    return FALLBACK_PROMPT;
+  }
+}
 
 // ── Agentic loop principal ────────────────────────────────────────────────────
-async function runAgent(question) {
+async function runAgent(question, systemPrompt) {
   const trace    = langfuse.trace({ name: 'agent-query', input: question });
   const messages = [{ role: 'user', content: question }];
 
@@ -264,7 +281,7 @@ async function runAgent(question) {
       model:    'claude-sonnet-4-6',
       max_tokens: 4096,
       thinking: { type: 'adaptive' },
-      system:   SYSTEM_PROMPT,
+      system:   systemPrompt,
       tools:    TOOLS,
       messages,
     });
@@ -330,6 +347,9 @@ async function main() {
   console.log('  🎯 query_jira            — JQL directo (filtros exactos)');
   console.log('  🔍 get_jira_issue        — Detalle de un issue específico\n');
 
+  // Carga el prompt desde Langfuse una vez al inicio (POC 6b)
+  const systemPrompt = await getSystemPrompt();
+
   const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
 
   const ask = () => {
@@ -339,7 +359,7 @@ async function main() {
         rl.close();
         return;
       }
-      await runAgent(question);
+      await runAgent(question, systemPrompt);
       ask();
     });
   };

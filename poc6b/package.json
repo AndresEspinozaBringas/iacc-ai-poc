@@ -1,0 +1,12 @@
+{
+  "name": "iacc-prompt-management",
+  "version": "1.0.0",
+  "description": "POC 6b — Langfuse Prompt Management: sube y gestiona el prompt ganador desde la UI",
+  "type": "module",
+  "scripts": {
+    "setup": "node --env-file=../.env setup-prompt.js"
+  },
+  "dependencies": {
+    "langfuse": "^3.0.0"
+  }
+}

@@ -168,15 +168,15 @@ Ver `TRAINING.md` para guía completa de capacitación del equipo.
 3. ✅ RAG multi-fuente (Excel + Jira + Wiki.js → 2.865 docs en ChromaDB)
 4. ✅ Multi-Agent con Claude Sonnet 4.6 (4 tools, optimizado desde Opus 4.6)
 
-### 🔴 FASE 1 — Producción & Calidad (EN CURSO)
+### 🔴 FASE 1 — Producción & Calidad (COMPLETADA)
 5. ✅ LLM-as-Judge → evaluación automática de respuestas del agente
-6. 🔄 Prompt Experiments → construida, pendiente de correr en MacBook M5
-6b. ⬜ Langfuse Prompt Management → gestionar el prompt ganador desde la UI sin tocar código
-7. ⬜ Guardrails → privacidad, scope, alucinación, prompt injection
+6. ✅ Prompt Experiments → v3-estructurado ganador (3.96/5) — dataset iacc-eval 8 preguntas
+6b. ✅ Langfuse Prompt Management → prompt ganador en UI, agente lo lee con getPrompt()
+7. ✅ Guardrails + RBAC → scope, injection, permisos por rol, redacción de datos sensibles
 
-### 🟢 FASE 2 — Producto & Negocio
-8. ⬜ Asistente Web IACC → interfaz chat sobre RAG actual (Next.js + Express)
-9. ⬜ AI Gateway con LiteLLM → centralizar llamadas LLM del equipo con control de costos
+### 🟢 FASE 2 — Producto & Negocio (EN CURSO)
+8. 🔄 Teams Bot → Bot Framework + lista blanca — pendiente acceso Azure para conectar a Teams
+9. ✅ AI Gateway LiteLLM → virtual keys por proyecto/dev, límites de gasto, alias de modelos
 10. ⬜ Fine-tuning → modelo especializado en dominio IACC (cuando haya datos suficientes)
 
 ---
@@ -189,22 +189,25 @@ Se migró el proyecto al MacBook Pro M5 16GB para mejor rendimiento.
 
 ### Estado de la migración
 - ✅ Código subido a GitHub: https://github.com/AndresEspinozaBringas/iacc-ai-poc
-- 🔄 Exportar datos Docker del M1 (paso 2)
-- ⬜ Transferir backups al M5 (paso 3)
-- ⬜ Configurar M5 (paso 4)
-- ⬜ Restaurar datos en M5 (paso 5)
-- ⬜ Verificar entorno M5 (paso 6)
+- ✅ Exportar datos Docker del equipo origen (paso 2)
+- ✅ Transferir backups al equipo destino (paso 3)
+- ✅ Configurar equipo destino (paso 4)
+- ✅ Restaurar datos (paso 5)
+- ✅ Verificar entorno (paso 6) — completada en MacBook Pro M5
 
-### Scripts de migración
+### Scripts de migración (portables — funcionan en cualquier equipo)
+Los scripts detectan su ubicación automáticamente con `PROJECT_DIR`.
+No contienen rutas hardcodeadas — funcionan independiente de dónde esté clonado el proyecto.
+
 ```bash
-# En M1
-bash ~/langfuse-poc/scripts/paso1-github-m1.sh       # preparar git
-bash ~/langfuse-poc/scripts/paso2-exportar-datos-m1.sh  # exportar volúmenes Docker
+# En equipo origen
+bash scripts/paso1-github-m1.sh                          # preparar git
+bash scripts/paso2-exportar-datos-m1.sh                  # exportar volúmenes Docker
 
-# En M5
-bash paso4-configurar-m5.sh <URL_GITHUB>             # clonar + instalar
-bash ~/langfuse-poc/scripts/paso5-restaurar-datos-m5.sh # restaurar datos
-bash ~/langfuse-poc/scripts/paso6-verificar-m5.sh    # verificar entorno
+# En equipo destino
+bash paso4-configurar-m5.sh <URL_GITHUB> [dir_destino]   # clonar + instalar
+bash scripts/paso5-restaurar-datos-m5.sh                 # restaurar datos
+bash scripts/paso6-verificar-m5.sh                       # verificar entorno
 ```
 
 ---
@@ -241,77 +244,142 @@ Dashboard muestra tendencias
 
 ---
 
-## POC 6 — Prompt Experiments (EN CURSO)
+## POC 6 — Prompt Experiments (COMPLETADO)
 
-### Objetivo
-Comparar 3 variantes del system prompt del agente usando Langfuse Datasets y Experiments.
+### Resultado
+| Variante | Promedio | Destaca en |
+|----------|----------|-----------|
+| v1-baseline | 3.43/5 | — |
+| v2-conciso | 3.74/5 | Concisión |
+| **v3-estructurado** | **3.96/5** | Correctitud + Sin alucinaciones |
 
-### Variantes
-| Variante | Estrategia |
-|----------|-----------|
-| `v1-baseline` | Prompt actual del agente (poc4), explicativo |
-| `v2-conciso` | Reglas estrictas: máx 3 bullets, solo info verificada |
-| `v3-estructurado` | Formato fijo con `**Respuesta:**` + `**Fuentes consultadas:**` |
+**Ganador: v3-estructurado** — formato `**Respuesta:**` + `**Fuentes consultadas:**`
 
-### Stack
-- Langfuse Datasets API — dataset `iacc-eval` con 8 preguntas
-- Langfuse Experiments — cada variante es un run vinculado vía `item.link(trace, runName)`
-- LLM-as-Judge (Haiku 4.5) — mismas 4 dimensiones que POC 5
-- Modelos: Sonnet 4.6 (agente) + Haiku 4.5 (juez)
-
-### Comandos
+### Comando
 ```bash
-cd ~/langfuse-poc/poc6
-npm run experiment    # corre las 3 variantes × 8 preguntas (~10 min)
+cd poc6 && npm run experiment    # 3 variantes × 8 preguntas (~10 min)
 ```
-
-### Ver resultados
-Langfuse → Datasets → `iacc-eval` → comparar runs lado a lado
 
 ---
 
-## POC 6b — Langfuse Prompt Management (PRÓXIMO)
+## POC 6b — Langfuse Prompt Management (COMPLETADO)
 
-### Objetivo
-Mover el prompt ganador de POC 6 a Langfuse Prompt Management para gestionarlo desde la UI sin tocar código.
+### Qué se hizo
+- Prompt ganador (v3-estructurado) subido a Langfuse como `agent-system` con label `production`
+- `poc4/agent.js` modificado para leer el prompt con `langfuse.getPrompt('agent-system')`
+- Fallback local si Langfuse no está disponible
 
-### Qué agrega
-- Versionar prompts desde la UI (v1, v2, v3... con historial y fechas)
-- Cambiar el prompt en producción sin deploy
-- Rollback en 1 click si un prompt nuevo empeora las métricas
-- Prompt separado del código: `await langfuse.getPrompt('agent-system', version)`
+### Comando
+```bash
+cd poc6b && npm run setup    # sube el prompt a Langfuse (solo primera vez)
+```
+
+### Gestión
+Langfuse → Prompts → `agent-system` → editar sin tocar código
+
+---
+
+## POC 7 — Guardrails + RBAC (COMPLETADO)
+
+### Arquitectura
+```
+INPUT:  injection check (regex) → scope check (Haiku) → permission check (por rol)
+AGENT:  herramientas filtradas según rol
+OUTPUT: redacción de datos sensibles según rol
+```
+
+### Roles implementados
+| Rol | Datos alumnos | Endpoints admin | Métricas |
+|-----|--------------|-----------------|----------|
+| director-ti | ✅ | ✅ | ✅ |
+| jefe-desarrollo | ✅ | ❌ | ✅ |
+| lider-tecnico | ❌ | ❌ | ❌ |
+| desarrollador-fullstack | ❌ | ❌ | ❌ |
+
+### Comando
+```bash
+cd poc7 && npm run agent    # selección de rol interactiva al arrancar
+```
+
+---
+
+## POC 8 — Teams Bot (EN CURSO)
+
+### Estado
+- ✅ Bot implementado con Bot Framework SDK
+- ✅ Lista blanca: andres.espinoza, alejandro.opazo, mauricio.mendoza, alejandro.lucero (@iacc.cl)
+- ✅ Guardrails POC 7 integrados
+- ✅ Selección de rol al inicio de conversación
+- 🔄 Pendiente: acceso Azure para configurar Messaging Endpoint
+
+### Comando
+```bash
+# Terminal 1
+cd poc8 && npm run start     # servidor en puerto 3978
+# Terminal 2
+cd poc8 && npm run tunnel    # túnel público con localtunnel
+```
+
+---
+
+## POC 9 — AI Gateway LiteLLM (COMPLETADO)
+
+### Stack
+- LiteLLM como contenedor Docker (puerto 4000)
+- 3 alias de modelos: `agente-iacc`, `juez-iacc`, `rag-iacc`
+- 9 virtual keys: 5 por proyecto + 4 por desarrollador del equipo
+- Dashboard: http://localhost:4000/ui
+
+### Alias de modelos
+| Alias | Modelo real | Usado en |
+|-------|-------------|---------|
+| `agente-iacc` | claude-sonnet-4-6 | poc4, poc7, poc8 |
+| `juez-iacc` | claude-haiku-4-5 | poc5, poc6 |
+| `rag-iacc` | claude-haiku-4-5 | rag/query.js |
+
+### Comandos
+```bash
+cd poc9
+npm run setup-keys    # crear virtual keys (solo primera vez)
+npm run test          # verificar gateway
+```
 
 ---
 
 ## Estrategia de modelos (optimización de costos)
 
-| Componente | Modelo | Costo output |
-|-----------|--------|-------------|
-| Agente (poc4, poc5, poc6) | `claude-sonnet-4-6` | $15/1M tokens |
-| Juez evaluador (poc5, poc6) | `claude-haiku-4-5` | $5/1M tokens |
-| RAG query (rag/query.js) | `claude-haiku-4-5` | $5/1M tokens |
+| Componente | Alias LiteLLM | Modelo real | Costo output |
+|-----------|---------------|-------------|-------------|
+| Agente RAG + guardrails | `agente-iacc` | claude-sonnet-4-6 | $15/1M tokens |
+| Juez evaluador | `juez-iacc` | claude-haiku-4-5 | $5/1M tokens |
+| RAG queries | `rag-iacc` | claude-haiku-4-5 | $5/1M tokens |
+
+Para cambiar modelo: editar `litellm_config.yaml` y reiniciar el contenedor.
 
 ---
 
 ## Estructura del proyecto actualizada
 ```
-langfuse-poc/
-├── docker-compose.yml
-├── .env
+iacc-ai-poc/
+├── docker-compose.yml       ← Stack completo (Langfuse + ChromaDB + LiteLLM)
+├── litellm_config.yaml      ← Alias de modelos y config del gateway
+├── .env                     ← Credenciales (NO commitear)
 ├── CLAUDE.md
 ├── TRAINING.md
-├── scripts/
-│   └── test-claude.js
+├── scripts/                 ← Scripts portables (sin rutas hardcodeadas)
+│   ├── paso1-github-m1.sh
+│   ├── paso1b-push-github.sh
+│   ├── paso2-exportar-datos-m1.sh
+│   ├── paso3-transferir-red.sh
+│   ├── paso4-configurar-m5.sh
+│   ├── paso5-restaurar-datos-m5.sh
+│   └── paso6-verificar-m5.sh
 ├── rag/                     ← POC 3: RAG multi-fuente
-├── poc4/                    ← POC 4: Agente multi-herramienta
-│   └── agent.js
+├── poc4/                    ← POC 4: Agente multi-herramienta ✅
 ├── poc5/                    ← POC 5: LLM-as-Judge ✅
-│   ├── evaluator.js
-│   ├── run-eval.js
-│   └── dataset.json
-├── poc6/                    ← POC 6: Prompt Experiments 🔄
-│   ├── experiment.js
-│   └── package.json
-├── poc7/                    ← POC 7: Guardrails
-└── web/                     ← Fase 2: Asistente Web IACC
+├── poc6/                    ← POC 6: Prompt Experiments ✅
+├── poc6b/                   ← POC 6b: Langfuse Prompt Management ✅
+├── poc7/                    ← POC 7: Guardrails + RBAC ✅
+├── poc8/                    ← POC 8: Teams Bot 🔄
+└── poc9/                    ← POC 9: AI Gateway LiteLLM ✅
 ```

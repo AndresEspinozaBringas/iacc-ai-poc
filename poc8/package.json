@@ -1,0 +1,17 @@
+{
+  "name": "iacc-teams-bot",
+  "version": "1.0.0",
+  "description": "POC 8 — Bot de Teams con agente IACC (RAG + Jira + Guardrails RBAC)",
+  "type": "module",
+  "scripts": {
+    "start": "node --env-file=../.env server.js",
+    "tunnel": "lt --port 3978 --subdomain iacc-bot-poc"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.32.0",
+    "botbuilder": "^4.23.0",
+    "chromadb": "^2.0.0",
+    "express": "^4.19.0",
+    "langfuse": "^3.0.0"
+  }
+}

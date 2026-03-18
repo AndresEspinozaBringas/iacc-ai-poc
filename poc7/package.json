@@ -1,0 +1,14 @@
+{
+  "name": "iacc-guardrails",
+  "version": "1.0.0",
+  "description": "POC 7 — Guardrails con RBAC: scope, injection, permisos por rol y redacción de datos sensibles",
+  "type": "module",
+  "scripts": {
+    "agent": "node --env-file=../.env agent.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.32.0",
+    "chromadb": "^2.0.0",
+    "langfuse": "^3.0.0"
+  }
+}
