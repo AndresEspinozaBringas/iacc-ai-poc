@@ -166,11 +166,11 @@ Ver `TRAINING.md` para guía completa de capacitación del equipo.
 1. ✅ LLM Observability con Langfuse
 2. ✅ MCP Server propio (iacc-server)
 3. ✅ RAG multi-fuente (Excel + Jira + Wiki.js → 2.865 docs en ChromaDB)
-4. ✅ Multi-Agent con Claude Opus 4.6 (4 tools)
+4. ✅ Multi-Agent con Claude Sonnet 4.6 (4 tools, optimizado desde Opus 4.6)
 
 ### 🔴 FASE 1 — Producción & Calidad (EN CURSO)
 5. ✅ LLM-as-Judge → evaluación automática de respuestas del agente
-6. 🔄 Prompt Experiments → comparar variantes de system prompt con Langfuse Datasets
+6. 🔄 Prompt Experiments → construida, pendiente de correr en MacBook M5
 6b. ⬜ Langfuse Prompt Management → gestionar el prompt ganador desde la UI sin tocar código
 7. ⬜ Guardrails → privacidad, scope, alucinación, prompt injection
 
@@ -178,6 +178,34 @@ Ver `TRAINING.md` para guía completa de capacitación del equipo.
 8. ⬜ Asistente Web IACC → interfaz chat sobre RAG actual (Next.js + Express)
 9. ⬜ AI Gateway con LiteLLM → centralizar llamadas LLM del equipo con control de costos
 10. ⬜ Fine-tuning → modelo especializado en dominio IACC (cuando haya datos suficientes)
+
+---
+
+## Migración M1 → M5
+
+### Contexto
+El MacBook Air M1 8GB quedó limitado para correr el stack completo Docker (7 servicios ~5-6GB RAM).
+Se migró el proyecto al MacBook Pro M5 16GB para mejor rendimiento.
+
+### Estado de la migración
+- ✅ Código subido a GitHub: https://github.com/AndresEspinozaBringas/iacc-ai-poc
+- 🔄 Exportar datos Docker del M1 (paso 2)
+- ⬜ Transferir backups al M5 (paso 3)
+- ⬜ Configurar M5 (paso 4)
+- ⬜ Restaurar datos en M5 (paso 5)
+- ⬜ Verificar entorno M5 (paso 6)
+
+### Scripts de migración
+```bash
+# En M1
+bash ~/langfuse-poc/scripts/paso1-github-m1.sh       # preparar git
+bash ~/langfuse-poc/scripts/paso2-exportar-datos-m1.sh  # exportar volúmenes Docker
+
+# En M5
+bash paso4-configurar-m5.sh <URL_GITHUB>             # clonar + instalar
+bash ~/langfuse-poc/scripts/paso5-restaurar-datos-m5.sh # restaurar datos
+bash ~/langfuse-poc/scripts/paso6-verificar-m5.sh    # verificar entorno
+```
 
 ---
 
