@@ -14,3 +14,6 @@ node_modules/
 
 # Logs
 *.log
+
+# MCP config — generado localmente con poc14/setup-kiro.sh (rutas absolutas por equipo)
+.kiro/settings/mcp.json

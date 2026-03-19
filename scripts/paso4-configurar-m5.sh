@@ -56,7 +56,12 @@ for dir in rag poc4 poc5 poc6 poc6b poc7 poc8 poc9; do
   fi
 done
 
-# ── 4. Levantar servicios Docker ────────────────────────────────────────────
+# ── 4. Configurar MCP Server para Kiro IDE ─────────────────────────────────
+echo ""
+echo "🔧 Configurando MCP Server IACC para Kiro..."
+bash "$CLONE_DIR/poc14/setup-kiro.sh" 2>/dev/null || echo "   (Kiro no detectado — ejecuta bash poc14/setup-kiro.sh cuando instales Kiro)"
+
+# ── 5. Levantar servicios Docker ────────────────────────────────────────────
 echo ""
 echo "🐳 Levantando servicios Docker..."
 echo "   (La primera vez descarga las imágenes — puede tardar 5-10 min)"
