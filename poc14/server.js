@@ -77,7 +77,7 @@ Cubre: catálogos de APIs (endpoints, parámetros, autenticación), issues Jira 
           },
           filter: {
             type: 'string',
-            enum: ['all', 'apis', 'jira', 'wiki'],
+            enum: ['all', 'apis', 'jira', 'wiki', 'sharepoint'],
             description: 'Filtrar por fuente (default: all)',
           },
           n_results: {
@@ -237,7 +237,7 @@ async function searchTechnicalDocs({ query, filter = 'all', n_results = 6 }) {
 
   // Aplicar filtro por fuente
   if (filter !== 'all') {
-    const sourceMap = { apis: 'excel', jira: 'jira', wiki: 'wiki' };
+    const sourceMap = { apis: 'excel', jira: 'jira', wiki: 'wiki', sharepoint: 'sharepoint' };
     queryParams.where = { source: sourceMap[filter] };
   }
 

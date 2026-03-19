@@ -1,0 +1,18 @@
+{
+  "name": "iacc-sharepoint-ingest",
+  "version": "1.0.0",
+  "description": "POC 12 — Ingesta SharePoint → ChromaDB",
+  "type": "module",
+  "scripts": {
+    "ingest":       "node --env-file=../.env ingest.js",
+    "ingest:docs":  "node --env-file=../.env ingest.js --only=documents",
+    "ingest:pages": "node --env-file=../.env ingest.js --only=pages",
+    "ingest:lists": "node --env-file=../.env ingest.js --only=lists"
+  },
+  "dependencies": {
+    "chromadb": "^2.0.0",
+    "chromadb-default-embed": "^2.13.2",
+    "mammoth": "^1.8.0",
+    "pdf-parse": "^1.1.1"
+  }
+}

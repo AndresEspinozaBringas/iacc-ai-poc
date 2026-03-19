@@ -179,8 +179,11 @@ Ver `TRAINING.md` para guía completa de capacitación del equipo.
 9. ✅ AI Gateway LiteLLM → virtual keys por proyecto/dev, límites de gasto, alias de modelos
 10. ⬜ Fine-tuning → modelo especializado en dominio IACC (cuando haya datos suficientes)
 
+### 🟡 FASE 2b — Fuentes de conocimiento
+12. ✅ SharePoint → ChromaDB → ingesta de documentos Word/PDF, páginas y listas
+
 ### 🔵 FASE 3 — Dev Experience (EN CURSO)
-14. ✅ Kiro + MCP Server IACC → 4 tools de contexto en el IDE (APIs, Jira, estándares, docs)
+14. ✅ Kiro + MCP Server IACC → 6 tools (APIs, Jira directo, estándares, docs, sharepoint)
 
 ---
 
@@ -425,6 +428,8 @@ iacc-ai-poc/
 ├── poc7/                    ← POC 7: Guardrails + RBAC ✅
 ├── poc8/                    ← POC 8: Teams Bot 🔄
 ├── poc9/                    ← POC 9: AI Gateway LiteLLM ✅
+├── poc12/                   ← POC 12: SharePoint → ChromaDB ✅
+│   └── ingest.js            ← Documentos, páginas y listas vía Graph API
 ├── poc14/                   ← POC 14: MCP Server IACC para Kiro ✅
 │   └── server.js            ← MCP server con 4 tools de contexto
 └── .kiro/
