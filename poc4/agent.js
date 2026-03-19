@@ -73,7 +73,7 @@ Proyectos disponibles: CA, KAG, PEE, IDE1CN, EV, TOP, DIBC, RMCH`,
       properties: {
         jql: {
           type: 'string',
-          description: 'Query JQL válido para Jira Cloud. Ejemplo: project = EV AND status = Done AND updated >= -7d ORDER BY updated DESC',
+          description: 'Query JQL válido para Jira Cloud. Los estados finalizados en IACC son: Done, Finalizado, Finalizada, Terminado. Ejemplo: project = CA AND status in ("Done","Finalizado","Finalizada","Terminado") AND updated >= -7d ORDER BY updated DESC',
         },
         max_results: {
           type: 'integer',
@@ -248,6 +248,10 @@ Herramientas disponibles:
 - search_wiki → arquitectura, flujos, reglas de negocio, documentación técnica
 - query_jira → filtros JQL exactos: fechas, estados, proyectos, asignados
 - get_jira_issue → detalle completo de un issue específico (ej: EV-1316)
+
+Estados de Jira en IACC:
+- Finalizados: Done, Finalizado, Finalizada, Terminado
+- Usa siempre: status in ("Done","Finalizado","Finalizada","Terminado") para filtrar completados
 
 Usa herramientas antes de responder. Si necesitas múltiples fuentes, combínalas.
 Responde en español con precisión técnica.`;

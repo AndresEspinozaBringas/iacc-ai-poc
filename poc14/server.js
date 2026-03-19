@@ -181,7 +181,7 @@ A diferencia de search_technical_docs (semántica), esta herramienta filtra por 
         properties: {
           jql: {
             type: 'string',
-            description: 'Query JQL (ej: \'project = CA AND status = "In Progress"\') o descripción en español',
+            description: 'Query JQL. Estados finalizados en IACC: "Done","Finalizado","Finalizada","Terminado". Ej: project = CA AND status in ("Done","Finalizado","Finalizada","Terminado") AND updated >= -7d',
           },
           max_results: {
             type: 'integer',
