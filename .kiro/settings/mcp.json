@@ -11,7 +11,9 @@
         "search_technical_docs",
         "get_api_contracts",
         "get_related_stories",
-        "get_coding_standards"
+        "get_coding_standards",
+        "get_jira_issue",
+        "query_jira"
       ]
     }
   }

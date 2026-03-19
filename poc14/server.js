@@ -6,6 +6,8 @@
  *   - get_api_contracts      → contratos de endpoints por módulo o ruta
  *   - get_related_stories    → issues Jira relacionados con el código actual
  *   - get_coding_standards   → estándares y convenciones del equipo IACC
+ *   - get_jira_issue         → detalle completo de un issue por key (CA-248, PEE-12…)
+ *   - query_jira             → búsqueda JQL directa (estado, asignado, fechas, sprint)
  *
  * Transporte: stdio (estándar para MCP servers locales en Kiro)
  */
@@ -133,6 +135,43 @@ reglas de linting, estándares de API REST, convenciones de commits y pull reque
         },
       },
     },
+    {
+      name: 'get_jira_issue',
+      description: `Obtiene el detalle completo de un issue de Jira por su key (ej: CA-248, PEE-12, KAG-5).
+Devuelve: resumen, descripción, estado, prioridad, asignado, reporter, sprint, fechas y comentarios recientes.
+Úsala cuando tengas el key exacto del ticket y necesites entender qué hace, qué pide o cuál es su contexto.`,
+      inputSchema: {
+        type: 'object',
+        properties: {
+          issue_key: {
+            type: 'string',
+            description: 'Key del issue en formato PROYECTO-NÚMERO (ej: CA-248, PEE-12)',
+          },
+        },
+        required: ['issue_key'],
+      },
+    },
+    {
+      name: 'query_jira',
+      description: `Ejecuta una búsqueda en Jira usando JQL o lenguaje natural.
+Úsala para: ver issues por estado, sprint activo, asignado, fechas, tipo o proyecto.
+Ejemplos: "bugs abiertos en CA", "tareas asignadas a andres.espinoza", "issues creados esta semana en PEE".
+A diferencia de search_technical_docs (semántica), esta herramienta filtra por atributos exactos.`,
+      inputSchema: {
+        type: 'object',
+        properties: {
+          jql: {
+            type: 'string',
+            description: 'Query JQL (ej: \'project = CA AND status = "In Progress"\') o descripción en español',
+          },
+          max_results: {
+            type: 'integer',
+            description: 'Máximo de issues a retornar (default: 10, max: 50)',
+          },
+        },
+        required: ['jql'],
+      },
+    },
   ],
 }));
 
@@ -150,6 +189,10 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         return await getRelatedStories(args);
       case 'get_coding_standards':
         return await getCodingStandards(args);
+      case 'get_jira_issue':
+        return await getJiraIssue(args);
+      case 'query_jira':
+        return await queryJira(args);
       default:
         throw new Error(`Herramienta desconocida: ${name}`);
     }
@@ -489,6 +532,131 @@ Esto evita falsos positivos por divergencia mock/producción.`,
   }
 
   return standards.default;
+}
+
+// ── get_jira_issue ────────────────────────────────────────────────────────────
+async function getJiraIssue({ issue_key }) {
+  if (!JIRA_AUTH) {
+    return { content: [{ type: 'text', text: '❌ JIRA_BASE_URL, JIRA_EMAIL o JIRA_API_TOKEN no están configurados en .env' }], isError: true };
+  }
+
+  const url = `${JIRA_BASE_URL}/rest/api/3/issue/${issue_key.toUpperCase()}`;
+  const res = await fetch(url, { headers: { Authorization: JIRA_AUTH, Accept: 'application/json' } });
+
+  if (res.status === 404) {
+    return { content: [{ type: 'text', text: `❌ Issue ${issue_key} no encontrado. Verifica el key y que tengas acceso al proyecto.` }], isError: true };
+  }
+  if (!res.ok) {
+    return { content: [{ type: 'text', text: `❌ Error Jira ${res.status}: ${await res.text()}` }], isError: true };
+  }
+
+  const data = await res.json();
+  const f = data.fields;
+
+  // Extraer texto de la descripción (formato Atlassian Document Format)
+  const description = extractAdfText(f.description);
+
+  // Comentarios recientes (últimos 3)
+  const comments = (f.comment?.comments ?? [])
+    .slice(-3)
+    .map(c => `**${c.author?.displayName ?? 'Anónimo'}** (${c.created?.substring(0, 10)}):\n${extractAdfText(c.body)}`)
+    .join('\n\n');
+
+  const lines = [
+    `# ${data.key}: ${f.summary}`,
+    '',
+    `**Estado:** ${f.status?.name ?? '-'}  |  **Prioridad:** ${f.priority?.name ?? '-'}  |  **Tipo:** ${f.issuetype?.name ?? '-'}`,
+    `**Asignado:** ${f.assignee?.displayName ?? 'Sin asignar'}  |  **Reporter:** ${f.reporter?.displayName ?? '-'}`,
+    `**Proyecto:** ${f.project?.name ?? '-'}  |  **Sprint:** ${f.sprint?.name ?? f.customfield_10020?.[0]?.name ?? '-'}`,
+    `**Creado:** ${f.created?.substring(0, 10) ?? '-'}  |  **Actualizado:** ${f.updated?.substring(0, 10) ?? '-'}`,
+    f.duedate ? `**Fecha límite:** ${f.duedate}` : '',
+    '',
+    '## Descripción',
+    description || '_Sin descripción_',
+    comments ? `\n## Comentarios recientes\n${comments}` : '',
+    '',
+    `🔗 ${JIRA_BASE_URL}/browse/${data.key}`,
+  ].filter(l => l !== undefined);
+
+  return { content: [{ type: 'text', text: lines.join('\n') }] };
+}
+
+// ── query_jira ────────────────────────────────────────────────────────────────
+async function queryJira({ jql, max_results = 10 }) {
+  if (!JIRA_AUTH) {
+    return { content: [{ type: 'text', text: '❌ JIRA_BASE_URL, JIRA_EMAIL o JIRA_API_TOKEN no están configurados en .env' }], isError: true };
+  }
+
+  const limit = Math.min(max_results, 50);
+  const url = `${JIRA_BASE_URL}/rest/api/3/search`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { Authorization: JIRA_AUTH, 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify({
+      jql,
+      maxResults: limit,
+      fields: ['summary', 'status', 'priority', 'assignee', 'issuetype', 'created', 'updated', 'project'],
+    }),
+  });
+
+  if (!res.ok) {
+    const err = await res.text();
+    return { content: [{ type: 'text', text: `❌ Error JQL ${res.status}: ${err}` }], isError: true };
+  }
+
+  const data = await res.json();
+  const issues = data.issues ?? [];
+
+  if (!issues.length) {
+    return { content: [{ type: 'text', text: `No se encontraron issues para: \`${jql}\`` }] };
+  }
+
+  const rows = issues.map(i => {
+    const f = i.fields;
+    const assignee = f.assignee?.displayName ?? 'Sin asignar';
+    return `- **${i.key}** [${f.status?.name}] ${f.summary} *(${assignee})*`;
+  });
+
+  const text = [
+    `# Resultados Jira (${issues.length} de ${data.total})`,
+    `**JQL:** \`${jql}\``,
+    '',
+    rows.join('\n'),
+    data.total > limit ? `\n_...y ${data.total - limit} más. Refina el JQL para ver más resultados._` : '',
+  ].join('\n');
+
+  return { content: [{ type: 'text', text: text }] };
+}
+
+// ── Helper: extraer texto plano de Atlassian Document Format ──────────────────
+function extractAdfText(node, depth = 0) {
+  if (!node) return '';
+  if (typeof node === 'string') return node;
+  if (node.type === 'text') return node.text ?? '';
+  if (node.type === 'hardBreak') return '\n';
+  if (node.type === 'paragraph') {
+    const text = (node.content ?? []).map(n => extractAdfText(n, depth)).join('');
+    return text + '\n';
+  }
+  if (node.type === 'heading') {
+    const text = (node.content ?? []).map(n => extractAdfText(n, depth)).join('');
+    return '#'.repeat(node.attrs?.level ?? 2) + ' ' + text + '\n';
+  }
+  if (node.type === 'bulletList' || node.type === 'orderedList') {
+    return (node.content ?? []).map(n => extractAdfText(n, depth + 1)).join('');
+  }
+  if (node.type === 'listItem') {
+    const text = (node.content ?? []).map(n => extractAdfText(n, depth)).join('').trim();
+    return '  '.repeat(depth - 1) + '- ' + text + '\n';
+  }
+  if (node.type === 'codeBlock') {
+    const code = (node.content ?? []).map(n => extractAdfText(n)).join('');
+    return '```\n' + code + '\n```\n';
+  }
+  if (node.content) {
+    return node.content.map(n => extractAdfText(n, depth)).join('');
+  }
+  return '';
 }
 
 // ── Iniciar servidor ──────────────────────────────────────────────────────────
