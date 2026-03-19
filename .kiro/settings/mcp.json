@@ -1,0 +1,18 @@
+{
+  "mcpServers": {
+    "iacc-context": {
+      "command": "node",
+      "args": ["--env-file=/Users/soporte/projectos/iacc-ai-poc/.env", "/Users/soporte/projectos/iacc-ai-poc/poc14/server.js"],
+      "env": {
+        "CHROMADB_URL": "http://localhost:8000"
+      },
+      "disabled": false,
+      "autoApprove": [
+        "search_technical_docs",
+        "get_api_contracts",
+        "get_related_stories",
+        "get_coding_standards"
+      ]
+    }
+  }
+}

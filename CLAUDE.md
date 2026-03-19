@@ -179,6 +179,9 @@ Ver `TRAINING.md` para guía completa de capacitación del equipo.
 9. ✅ AI Gateway LiteLLM → virtual keys por proyecto/dev, límites de gasto, alias de modelos
 10. ⬜ Fine-tuning → modelo especializado en dominio IACC (cuando haya datos suficientes)
 
+### 🔵 FASE 3 — Dev Experience (EN CURSO)
+14. ✅ Kiro + MCP Server IACC → 4 tools de contexto en el IDE (APIs, Jira, estándares, docs)
+
 ---
 
 ## Migración M1 → M5
@@ -346,6 +349,46 @@ npm run test          # verificar gateway
 
 ---
 
+## POC 14 — Kiro + MCP Server IACC (COMPLETADO)
+
+### Objetivo
+Exponer el contexto de IACC (APIs, issues Jira, Wiki, estándares) directamente en Kiro IDE
+para que el agente del IDE tenga contexto IACC al generar código, sin salir del editor.
+
+### Herramientas disponibles en Kiro
+| Tool | Fuente | Cuándo usarla |
+|------|--------|---------------|
+| `search_technical_docs` | ChromaDB (iacc-apis) | Búsqueda semántica en APIs + Jira + Wiki |
+| `get_api_contracts` | ChromaDB (fuente: excel) | Contratos de endpoints por módulo |
+| `get_related_stories` | ChromaDB (fuente: jira) | Issues relacionados con el código actual |
+| `get_coding_standards` | ChromaDB (wiki) + estáticos | Convenciones del equipo IACC |
+
+### Configuración en Kiro
+El servidor MCP queda registrado en `.kiro/settings/mcp.json` del proyecto.
+Kiro lo detecta automáticamente al abrir el workspace.
+
+### Arrancar el servidor (solo para debugging — Kiro lo levanta automáticamente)
+```bash
+cd poc14 && npm start
+```
+
+### Prompts de ejemplo para Kiro
+```
+# Con contexto de APIs
+"¿Qué endpoints existen para el módulo de matrícula?"
+"Genera un fetch para el endpoint de notas usando nuestro contrato de API"
+
+# Con contexto de Jira
+"¿Qué historias de usuario están relacionadas con el proceso de pago?"
+"Muéstrame los issues abiertos en el módulo de autenticación"
+
+# Con estándares
+"¿Cómo debería nombrar este servicio según las convenciones del equipo?"
+"Genera la estructura de carpetas para un nuevo módulo siguiendo nuestros estándares"
+```
+
+---
+
 ## Estrategia de modelos (optimización de costos)
 
 | Componente | Alias LiteLLM | Modelo real | Costo output |
@@ -381,5 +424,10 @@ iacc-ai-poc/
 ├── poc6b/                   ← POC 6b: Langfuse Prompt Management ✅
 ├── poc7/                    ← POC 7: Guardrails + RBAC ✅
 ├── poc8/                    ← POC 8: Teams Bot 🔄
-└── poc9/                    ← POC 9: AI Gateway LiteLLM ✅
+├── poc9/                    ← POC 9: AI Gateway LiteLLM ✅
+├── poc14/                   ← POC 14: MCP Server IACC para Kiro ✅
+│   └── server.js            ← MCP server con 4 tools de contexto
+└── .kiro/
+    └── settings/
+        └── mcp.json         ← Registro del MCP server en Kiro IDE
 ```

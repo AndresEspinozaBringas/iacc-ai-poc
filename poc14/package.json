@@ -1,0 +1,15 @@
+{
+  "name": "iacc-mcp-server",
+  "version": "1.0.0",
+  "description": "POC 14 — MCP Server IACC para Kiro IDE",
+  "type": "module",
+  "scripts": {
+    "start": "node --env-file=../.env server.js",
+    "dev": "node --env-file=../.env --watch server.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "chromadb": "^2.0.0",
+    "chromadb-default-embed": "^2.13.2"
+  }
+}
