@@ -59,7 +59,7 @@ done
 # ── 4. Configurar MCP Server para Kiro IDE ─────────────────────────────────
 echo ""
 echo "🔧 Configurando MCP Server IACC para Kiro..."
-bash "$CLONE_DIR/poc14/setup-kiro.sh" 2>/dev/null || echo "   (Kiro no detectado — ejecuta bash poc14/setup-kiro.sh cuando instales Kiro)"
+node "$CLONE_DIR/poc14/setup-kiro.js" 2>/dev/null || echo "   (Ejecuta: node poc14/setup-kiro.js  cuando instales Kiro)"
 
 # ── 5. Levantar servicios Docker ────────────────────────────────────────────
 echo ""
